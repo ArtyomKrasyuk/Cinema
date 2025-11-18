@@ -22,11 +22,21 @@
         <module name="ClientService" />
         <module name="CinemaService" />
       </profile>
+      <profile name="Annotation profile for AuthServer" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
+        </processorPath>
+        <module name="AuthServer" />
+      </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="APIGateway" options="-parameters" />
+      <module name="AuthServer" options="-parameters" />
       <module name="CinemaService" options="-parameters" />
       <module name="ClientService" options="-parameters" />
       <module name="DiscoveryServer" options="-parameters" />

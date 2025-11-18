@@ -8,6 +8,7 @@
         <option value="$PROJECT_DIR$/CinemaService/pom.xml" />
         <option value="$PROJECT_DIR$/DiscoveryServer/pom.xml" />
         <option value="$PROJECT_DIR$/APIGateway/pom.xml" />
+        <option value="$PROJECT_DIR$/AuthServer/pom.xml" />
       </list>
     </option>
   </component>
