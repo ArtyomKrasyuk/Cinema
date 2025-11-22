@@ -1,4 +1,4 @@
 package com.example.APIGateway.dto;
 
-public record AuthDTO(String username, String password) {
+public record AuthDTO(String login, String password) {
 }

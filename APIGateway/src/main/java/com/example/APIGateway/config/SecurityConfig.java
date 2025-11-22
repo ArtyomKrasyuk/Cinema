@@ -23,8 +23,10 @@ public class SecurityConfig {
         return http
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/auth").permitAll()
+                        .pathMatchers("/reg").permitAll()
                         .pathMatchers("/api/clients/test").permitAll()
-                        .pathMatchers("/api/test").hasRole("admin")
+                        .pathMatchers("/api/test/admin").hasRole("admin")
+                        .pathMatchers("/api/test/client").hasRole("client")
                         .anyExchange().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2

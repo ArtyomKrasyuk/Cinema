@@ -1,52 +1,43 @@
 package com.example.APIGateway.controllers;
 
 import com.example.APIGateway.dto.AuthDTO;
+import com.example.APIGateway.dto.RegistrationDTO;
+import com.example.APIGateway.service.AuthService;
+import org.keycloak.representations.AccessTokenResponse;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class AuthController {
-    @Value("${client-id}")
-    private String clientId;
+    private final AuthService authService;
 
-    @Value("${resource-url}")
-    private String resourceServerUrl;
-
-    @Value("${grant-type}")
-    private String grantType;
-
-    @PostMapping("/auth")
-    public String auth(@RequestBody AuthDTO authDTO) {
-        var headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-        var body = "client_id=" + clientId +
-                "&username=" + authDTO.username() +
-                "&password=" + authDTO.password() +
-                "&grant_type=" + grantType;
-
-        var requestEntity = new HttpEntity<>(body, headers);
-        var restTemplate = new RestTemplate();
-
-        var responce = restTemplate.exchange(
-                resourceServerUrl,
-                HttpMethod.POST,
-                requestEntity,
-                String.class
-        );
-        if (responce.getStatusCode().value() == 200) {
-            return responce.getBody();
-        }
-        return null;
+    public AuthController(
+                          AuthService authService
+    ) {
+        this.authService = authService;
     }
 
-    @GetMapping("/api/test")
-    public String test(){
-        return "Hello world";
+    @PostMapping("/auth")
+    public AccessTokenResponse auth(@RequestBody AuthDTO authDTO) {
+        return authService.authenticateUser(authDTO.login(), authDTO.password());
+    }
+
+    @PostMapping("/reg")
+    public AccessTokenResponse auth(@RequestBody RegistrationDTO registrationDTO) {
+        String uuid = authService.registerUser(registrationDTO);
+        return authService.authenticateUser(registrationDTO.login(), registrationDTO.password());
+    }
+
+    @GetMapping("/api/test/admin")
+    public String testAdmin(){
+        return "Hello admin";
+    }
+
+    @GetMapping("/api/test/client")
+    public String testClient(){
+        return "Hello client";
     }
 }
