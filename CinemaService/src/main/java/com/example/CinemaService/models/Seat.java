@@ -13,6 +13,8 @@ public class Seat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "seat_id")
     private Long seatId;
+    private Integer row;
+    private Integer number;
     @ManyToOne
     @JoinColumn(name = "seat_type_id", referencedColumnName = "seat_type_id")
     private SeatType seatType;

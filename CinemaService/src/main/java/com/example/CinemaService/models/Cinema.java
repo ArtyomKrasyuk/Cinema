@@ -18,6 +18,7 @@ public class Cinema {
     private Long cinemaId;
     @Column(unique = true)
     private String title;
+    private String address;
 
     @OneToMany(mappedBy = "cinema", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @EqualsAndHashCode.Exclude
