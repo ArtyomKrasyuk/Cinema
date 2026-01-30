@@ -9,17 +9,15 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public abstract class CinemaMapper {
+    @Autowired
     protected HallMapper hallMapper;
-
-    public CinemaMapper(HallMapper hallMapper){
-        this.hallMapper = hallMapper;
-    }
 
     @Mapping(target = "cinemaId", ignore = true)
     @Mapping(target = "halls", ignore = true)

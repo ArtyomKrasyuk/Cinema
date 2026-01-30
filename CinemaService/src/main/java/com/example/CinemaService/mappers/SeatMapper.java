@@ -11,23 +11,22 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(componentModel = "spring")
 public abstract class SeatMapper {
+    @Autowired
     protected SeatTypeRepository seatTypeRepository;
+    @Autowired
     protected HallRepository hallRepository;
-
-    public SeatMapper(SeatTypeRepository seatTypeRepository, HallRepository hallRepository){
-        this.seatTypeRepository = seatTypeRepository;
-        this.hallRepository = hallRepository;
-    }
 
     @Mapping(target = "type", expression = "java(seat.getSeatType().getTitle())")
     public abstract SeatResponseDTO toDto(Seat seat);
 
     @Mapping(target = "seatId", ignore = true)
     @Mapping(target = "hall", source = "hall")
-    @Mapping(target = "seatType", source = "type", qualifiedByName = "setSeatType")
+    @Mapping(target = "number", source = "dto.number")
+    @Mapping(target = "seatType", source = "dto.type", qualifiedByName = "setSeatType")
     public abstract Seat toEntity(SeatRequestDTO dto, Hall hall);
 
     @Mapping(target = "seatId", ignore = true)

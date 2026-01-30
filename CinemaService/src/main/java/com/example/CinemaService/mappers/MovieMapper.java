@@ -5,10 +5,8 @@ import com.example.CinemaService.dto.MovieResponseDTO;
 import com.example.CinemaService.models.Genre;
 import com.example.CinemaService.models.Movie;
 import com.example.CinemaService.repos.GenreRepository;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.Named;
+import org.mapstruct.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Set;
@@ -17,11 +15,8 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public abstract class MovieMapper {
+    @Autowired
     protected GenreRepository genreRepository;
-
-    public MovieMapper(GenreRepository genreRepository){
-        this.genreRepository = genreRepository;
-    }
 
     @Mapping(target = "movieId", ignore = true)
     @Mapping(target = "showtimes", ignore = true)
@@ -33,11 +28,11 @@ public abstract class MovieMapper {
 
     @Mapping(target = "movieId", ignore = true)
     @Mapping(target = "showtimes", ignore = true)
-    @Mapping(target = "genres", source = "genres", qualifiedByName = "setGenresUpdate")
+    @Mapping(target = "genres", source = "genres", qualifiedByName = "setGenres")
     public abstract void update(MovieRequestDTO dto, @MappingTarget Movie movie);
 
-    @Named("setGenresUpdate")
-    public Set<Genre> setGenresUpdate(Set<String> genres){
+    @Named("setGenres")
+    public Set<Genre> setGenres(List<String> genres){
         return genres.stream().map(str -> genreRepository.findByTitle(str)
                 .orElseThrow(() -> new RuntimeException("Жанр с названием " + str + "не найден")))
                 .collect(Collectors.toSet());

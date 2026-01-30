@@ -12,6 +12,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,13 +20,10 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public abstract class HallMapper {
+    @Autowired
     protected SeatMapper seatMapper;
+    @Autowired
     protected CinemaRepository cinemaRepository;
-
-    public HallMapper(SeatMapper seatMapper, CinemaRepository cinemaRepository){
-        this.seatMapper = seatMapper;
-        this.cinemaRepository = cinemaRepository;
-    }
 
     @Mapping(target = "cinemaId", expression = "java(hall.getCinema().getCinemaId())")
     @Mapping(target = "seats", source = "seats", qualifiedByName = "setSeats")
