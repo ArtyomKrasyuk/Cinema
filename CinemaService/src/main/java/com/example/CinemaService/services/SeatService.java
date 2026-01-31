@@ -8,6 +8,7 @@ import com.example.CinemaService.repos.SeatRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -16,11 +17,11 @@ public class SeatService {
     private final SeatRepository seatRepository;
     private final SeatMapper seatMapper;
 
-    public void saveSet(Set<SeatRequestDTO> seats, Hall hall){
+    public void saveList(List<SeatRequestDTO> seats, Hall hall){
         seatRepository.saveAll(seats.stream().map(seat -> seatMapper.toEntity(seat, hall)).toList());
     }
 
     public void deleteSet(Set<Seat> seats){
-        seatRepository.deleteAll(seats);
+        seatRepository.deleteAllInBatch(seats);
     }
 }

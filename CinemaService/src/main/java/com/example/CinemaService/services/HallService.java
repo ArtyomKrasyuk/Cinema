@@ -7,9 +7,11 @@ import com.example.CinemaService.models.Hall;
 import com.example.CinemaService.repos.HallRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
+@Transactional
 public class HallService {
     private final HallRepository hallRepository;
     private final HallMapper hallMapper;
@@ -21,7 +23,7 @@ public class HallService {
 
     public long save(HallRequestDTO dto){
         Hall hall = hallRepository.save(hallMapper.toEntity(dto));
-        seatService.saveSet(dto.seats(), hall);
+        seatService.saveList(dto.seats(), hall);
         return hall.getHallId();
     }
 
@@ -30,7 +32,7 @@ public class HallService {
         hallMapper.update(dto, hall);
         hall = hallRepository.save(hall);
         seatService.deleteSet(hall.getSeats());
-        seatService.saveSet(dto.seats(), hall);
+        seatService.saveList(dto.seats(), hall);
     }
 
     public void deleteById(long hallId){

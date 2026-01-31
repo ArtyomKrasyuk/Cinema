@@ -1,10 +1,10 @@
 package com.example.CinemaService.dto;
 
-import java.util.Set;
+import java.util.List;
 
 public record HallRequestDTO(
     long cinemaId,
     int number,
-    Set<SeatRequestDTO> seats
+    List<SeatRequestDTO> seats
 ) {
 }
