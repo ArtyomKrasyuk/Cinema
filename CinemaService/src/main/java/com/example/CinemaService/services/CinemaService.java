@@ -7,11 +7,13 @@ import com.example.CinemaService.models.Cinema;
 import com.example.CinemaService.repos.CinemaRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @AllArgsConstructor
+@Transactional
 public class CinemaService {
     private final CinemaRepository cinemaRepository;
     private final CinemaMapper cinemaMapper;

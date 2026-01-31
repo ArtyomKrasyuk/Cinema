@@ -7,12 +7,14 @@ import com.example.CinemaService.models.Seat;
 import com.example.CinemaService.repos.SeatRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
 
 @Service
 @AllArgsConstructor
+@Transactional
 public class SeatService {
     private final SeatRepository seatRepository;
     private final SeatMapper seatMapper;
