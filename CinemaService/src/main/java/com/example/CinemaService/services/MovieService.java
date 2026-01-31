@@ -24,6 +24,11 @@ public class MovieService {
         return movieRepository.findAll().stream().map(movieMapper::toDto).toList();
     }
 
+    public MovieResponseDTO findById(long movieId){
+        Movie movie =  movieRepository.findById(movieId).orElseThrow(() -> new RuntimeException("Фильм с id " + movieId + "не найден"));
+        return movieMapper.toDto(movie);
+    }
+
     public void update(MovieRequestDTO dto, long movieId){
         Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new RuntimeException("Фильм с id " + movieId + "не найден"));
         movieMapper.update(dto, movie);
