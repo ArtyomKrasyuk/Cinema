@@ -1,8 +1,6 @@
 package com.example.CinemaService.mappers;
 
-import com.example.CinemaService.dto.CinemaResponseDTO;
-import com.example.CinemaService.dto.ShowtimeRequestDTO;
-import com.example.CinemaService.dto.ShowtimeResponseDTO;
+import com.example.CinemaService.dto.*;
 import com.example.CinemaService.models.Hall;
 import com.example.CinemaService.models.Movie;
 import com.example.CinemaService.models.Showtime;
@@ -24,6 +22,8 @@ public abstract class ShowtimeMapper {
     protected MovieRepository movieRepository;
     @Autowired
     protected CinemaMapper cinemaMapper;
+    @Autowired
+    protected MovieMapper movieMapper;
 
     @Mapping(target = "cinema", source = "hall", qualifiedByName = "setCinema")
     @Mapping(target = "hallId", expression = "java(showtime.getHall().getHallId())")
@@ -43,6 +43,10 @@ public abstract class ShowtimeMapper {
     @Mapping(target = "time", source = "time", qualifiedByName = "setTime")
     public abstract void update(ShowtimeRequestDTO dto, @MappingTarget Showtime showtime);
 
+    @Mapping(target = "movie", source = "movie", qualifiedByName = "returnMovieDto")
+    @Mapping(target = "time", expression = "java(showtime.getTime().toString())")
+    public abstract ShowtimeWithMovieResponseDTO toDtoWithMovie(Showtime showtime);
+
     @Named("setCinema")
     public CinemaResponseDTO setCinema(Hall hall){
         return cinemaMapper.toDto(hall.getCinema());
@@ -58,6 +62,11 @@ public abstract class ShowtimeMapper {
         return movieRepository.findByTitle(movieTitle).orElseThrow(
                 () -> new RuntimeException("Фильм с названием " + movieTitle + " не найден")
         );
+    }
+
+    @Named("returnMovieDto")
+    public MovieResponseDTO returnMovieDto(Movie movie){
+        return movieMapper.toDto(movie);
     }
 
     @Named("setTime")

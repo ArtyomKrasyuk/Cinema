@@ -2,6 +2,7 @@ package com.example.CinemaService.controllers;
 
 import com.example.CinemaService.dto.ShowtimeRequestDTO;
 import com.example.CinemaService.dto.ShowtimeResponseDTO;
+import com.example.CinemaService.dto.ShowtimeWithMovieResponseDTO;
 import com.example.CinemaService.services.ShowtimeService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -36,5 +37,10 @@ public class ShowtimeController {
     public ResponseEntity<?> delete(@PathVariable long showtimeId){
         showtimeService.deleteById(showtimeId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/movies")
+    public List<ShowtimeWithMovieResponseDTO> findShowtimesWithMovies(){
+        return showtimeService.findShowtimesWithMovies();
     }
 }
