@@ -3,6 +3,7 @@ package com.example.CinemaService.mappers;
 import com.example.CinemaService.dto.*;
 import com.example.CinemaService.models.Hall;
 import com.example.CinemaService.models.Movie;
+import com.example.CinemaService.models.Seat;
 import com.example.CinemaService.models.Showtime;
 import com.example.CinemaService.repos.HallRepository;
 import com.example.CinemaService.repos.MovieRepository;
@@ -47,6 +48,13 @@ public abstract class ShowtimeMapper {
     @Mapping(target = "time", expression = "java(showtime.getTime().toString())")
     public abstract ShowtimeWithMovieResponseDTO toDtoWithMovie(Showtime showtime);
 
+    @Mapping(target = "cinema", source = "hall", qualifiedByName = "setCinema")
+    @Mapping(target = "hallId", expression = "java(showtime.getHall().getHallId())")
+    @Mapping(target = "movieTitle", expression = "java(showtime.getMovie().getTitle())")
+    @Mapping(target = "time", expression = "java(showtime.getTime().toString())")
+    @Mapping(target = "minPrice", source = ".", qualifiedByName = "setMinPrice")
+    public abstract ShowtimeWithMinPriceResponseDTO toDtoWithMinPrice(Showtime showtime);
+
     @Named("setCinema")
     public CinemaResponseDTO setCinema(Hall hall){
         return cinemaMapper.toDto(hall.getCinema());
@@ -72,5 +80,15 @@ public abstract class ShowtimeMapper {
     @Named("setTime")
     public Timestamp setTime(String time){
         return Timestamp.valueOf(time);
+    }
+
+    @Named("setMinPrice")
+    public int setMinPrice(Showtime showtime){
+        double minPrice = Double.MAX_VALUE;
+        double price = showtime.getBasePrice() * showtime.getHall().getHallType().getFactor();
+        for(Seat seat: showtime.getHall().getSeats()){
+            if(price * seat.getSeatType().getFactor() < minPrice) minPrice = price * seat.getSeatType().getFactor();
+        }
+        return (int)Math.floor(minPrice);
     }
 }

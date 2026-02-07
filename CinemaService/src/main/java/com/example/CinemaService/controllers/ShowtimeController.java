@@ -2,6 +2,7 @@ package com.example.CinemaService.controllers;
 
 import com.example.CinemaService.dto.ShowtimeRequestDTO;
 import com.example.CinemaService.dto.ShowtimeResponseDTO;
+import com.example.CinemaService.dto.ShowtimeWithMinPriceResponseDTO;
 import com.example.CinemaService.dto.ShowtimeWithMovieResponseDTO;
 import com.example.CinemaService.services.ShowtimeService;
 import lombok.AllArgsConstructor;
@@ -42,5 +43,15 @@ public class ShowtimeController {
     @GetMapping("/movies")
     public List<ShowtimeWithMovieResponseDTO> findShowtimesWithMovies(){
         return showtimeService.findShowtimesWithMovies();
+    }
+
+    @GetMapping("/price")
+    public List<ShowtimeWithMinPriceResponseDTO> findShowtimesWithMinPrice(){
+        return showtimeService.findShowtimesWithMinPrice();
+    }
+
+    @GetMapping("/price/{movieId}")
+    public List<ShowtimeWithMinPriceResponseDTO> findShowtimesWithMinPriceByMovie(@PathVariable long movieId){
+        return showtimeService.findShowtimesWithMinPrice();
     }
 }

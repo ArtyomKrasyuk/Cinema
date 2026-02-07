@@ -6,6 +6,7 @@ public record HallResponseDTO(
      long hallId,
      long cinemaId,
      int number,
-     Set<SeatResponseDTO> seats
+     Set<SeatResponseDTO> seats,
+     String hallType
 ) {
 }

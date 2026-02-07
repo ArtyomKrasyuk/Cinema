@@ -2,6 +2,7 @@ package com.example.CinemaService.services;
 
 import com.example.CinemaService.dto.ShowtimeRequestDTO;
 import com.example.CinemaService.dto.ShowtimeResponseDTO;
+import com.example.CinemaService.dto.ShowtimeWithMinPriceResponseDTO;
 import com.example.CinemaService.dto.ShowtimeWithMovieResponseDTO;
 import com.example.CinemaService.mappers.ShowtimeMapper;
 import com.example.CinemaService.models.Showtime;
@@ -46,6 +47,15 @@ public class ShowtimeService {
 
     public List<ShowtimeWithMovieResponseDTO> findShowtimesWithMovies(){
         return showtimeRepository.findAllUpcomingShowtimes().stream().map(showtimeMapper::toDtoWithMovie).toList();
+    }
+
+    public List<ShowtimeWithMinPriceResponseDTO> findShowtimesWithMinPrice(){
+        return showtimeRepository.findAllUpcomingShowtimes().stream().map(showtimeMapper::toDtoWithMinPrice).toList();
+    }
+
+    public List<ShowtimeWithMinPriceResponseDTO> findShowtimesWithMinPriceByMovie(long movieId){
+        return showtimeRepository.findAllUpcomingShowtimesByMovie(movieId)
+                .stream().map(showtimeMapper::toDtoWithMinPrice).toList();
     }
 
     private boolean isTimeInvalid(Showtime showtime, boolean update){

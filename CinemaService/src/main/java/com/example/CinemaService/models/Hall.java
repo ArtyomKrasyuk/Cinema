@@ -20,6 +20,9 @@ public class Hall {
     @ManyToOne
     @JoinColumn(name = "cinema_id", referencedColumnName = "cinema_id")
     private Cinema cinema;
+    @ManyToOne
+    @JoinColumn(name = "hall_type_id", referencedColumnName = "hall_type_id")
+    private HallType hallType;
 
     @OneToMany(mappedBy = "hall", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @EqualsAndHashCode.Exclude
