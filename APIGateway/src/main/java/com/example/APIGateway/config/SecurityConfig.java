@@ -24,17 +24,19 @@ public class SecurityConfig {
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/auth").permitAll()
                         .pathMatchers("/reg").permitAll()
-                        .pathMatchers("/api/clients/test").permitAll()
+                        .pathMatchers("/api/**").permitAll()
+                        /*.pathMatchers("/api/clients/test").permitAll()
                         .pathMatchers("/api/test/admin").hasRole("admin")
                         .pathMatchers("/api/test/client").hasRole("client")
-                        .anyExchange().authenticated()
+                        .anyExchange().authenticated()*/
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt
                                 .jwtAuthenticationConverter(keycloakAuthConverter())
                         )
                 )
-                .csrf(ServerHttpSecurity.CsrfSpec::disable) // Часто нужно для API
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .cors(ServerHttpSecurity.CorsSpec::disable)
                 .build();
     }
 
