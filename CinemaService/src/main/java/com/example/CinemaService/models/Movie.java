@@ -29,7 +29,7 @@ public class Movie {
             inverseJoinColumns = @JoinColumn(name = "genre_id")
     )
     @EqualsAndHashCode.Exclude
-    Set<Genre> genres;
+    private Set<Genre> genres;
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @EqualsAndHashCode.Exclude

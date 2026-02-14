@@ -22,5 +22,5 @@ public class Cinema {
 
     @OneToMany(mappedBy = "cinema", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @EqualsAndHashCode.Exclude
-    Set<Hall> halls;
+    private Set<Hall> halls;
 }

@@ -21,5 +21,5 @@ public class Genre {
 
     @ManyToMany(mappedBy = "genres")
     @EqualsAndHashCode.Exclude
-    Set<Movie> movies;
+    private Set<Movie> movies;
 }
