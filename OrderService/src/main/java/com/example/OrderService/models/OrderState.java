@@ -1,7 +1,10 @@
 package com.example.OrderService.models;
 
 public enum OrderState {
+    CREATED,
     PROCESSING,
     CONFIRMED,
-    CANCELED
+    CANCELED,
+    EXPIRED,
+    PAYMENT_FAILED
 }

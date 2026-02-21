@@ -32,6 +32,8 @@ public class Order {
     private Integer hallNumber;
     @Column(name = "time")
     private Timestamp time;
+    @Column(name = "expires_at")
+    private Timestamp expiresAt;
     @Column(name = "price")
     private BigDecimal price;
     @Column(name = "state")

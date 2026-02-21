@@ -23,8 +23,9 @@ public abstract class OrderMapper {
     @Mapping(target = "orderId", ignore = true)
     @Mapping(target = "clientId", ignore = true)
     @Mapping(target = "time", source = "time", qualifiedByName = "setTime")
-    @Mapping(target = "state", expression = "java(com.example.OrderService.models.OrderState.PROCESSING)")
+    @Mapping(target = "state", expression = "java(com.example.OrderService.models.OrderState.CREATED)")
     @Mapping(target = "seats", ignore = true)
+    @Mapping(target = "expiresAt", ignore = true)
     public abstract Order toEntity(OrderRequestDTO dto);
 
     @Mapping(target = "time", expression = "java(order.getTime().toString())")
