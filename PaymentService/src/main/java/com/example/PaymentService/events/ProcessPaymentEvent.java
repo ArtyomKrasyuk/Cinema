@@ -1,4 +1,4 @@
-package com.example.OrderService.events;
+package com.example.PaymentService.events;
 
 import java.math.BigDecimal;
 

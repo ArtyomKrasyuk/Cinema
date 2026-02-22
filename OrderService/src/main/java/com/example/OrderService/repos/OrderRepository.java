@@ -8,6 +8,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
@@ -22,4 +24,17 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
           AND o.expiresAt > CURRENT_TIMESTAMP
     """)
     int moveToProcessing(@Param("id") Long id);
+
+    @Modifying
+    @Transactional
+    @Query(value = """
+        UPDATE orders
+        SET state = 'EXPIRED',
+            expires_at = NULL
+        WHERE state = 'CREATED'
+        AND expires_at <= now()
+        RETURNING order_id
+        """,
+            nativeQuery = true)
+    List<Long> expireOrders();
 }

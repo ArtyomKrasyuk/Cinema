@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/payment")
 @AllArgsConstructor
 public class PaymentController {
-    private OrderService orderService;
+    private final OrderService orderService;
 
     @PostMapping
     public ResponseEntity<?> pay(@RequestBody PaymentRequestDTO dto){
