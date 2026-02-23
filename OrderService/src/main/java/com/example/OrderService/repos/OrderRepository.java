@@ -37,4 +37,15 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         """,
             nativeQuery = true)
     List<Long> expireOrders();
+
+    @Modifying
+    @Transactional
+    @Query("""
+        UPDATE Order o
+        SET o.state = 'CANCELED'
+        WHERE o.orderId = :id
+          AND o.state = 'CONFIRMED'
+          AND o.time > CURRENT_TIMESTAMP
+    """)
+    int moveToCanceled(@Param("id") Long id);
 }

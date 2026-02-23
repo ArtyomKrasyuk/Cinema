@@ -15,8 +15,12 @@ public class OrderSeat {
     private Long orderSeatId;
     @Column(name = "seat_id")
     private Long seatId;
+    @Column(name = "showtime_id")
+    private Long showtimeId;
     @Column(name = "seat_number")
     private Integer seatNumber;
+    @Enumerated(EnumType.STRING)
+    private OrderState state;
 
     @ManyToOne
     @JoinColumn(name = "order_id", referencedColumnName = "order_id")

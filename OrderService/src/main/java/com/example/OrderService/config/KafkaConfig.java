@@ -1,6 +1,7 @@
 package com.example.OrderService.config;
 
 import com.example.OrderService.events.ProcessPaymentEvent;
+import com.example.OrderService.events.RefundEvent;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -34,6 +35,8 @@ public class KafkaConfig {
     private String paymentSucceededTopic;
     @Value("app.kafka.payment.failed.topic")
     private String paymentFailedTopic;
+    @Value("app.kafka.refund.event.topic")
+    private String refundTopic;
 
     @Bean
     public NewTopic createProcessPaymentTopic(){
@@ -51,18 +54,39 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ProducerFactory<String, ProcessPaymentEvent> producerFactoryForProcessPayment(){
+    public NewTopic createRefundEventTopic(){
+        return TopicBuilder.name(refundTopic).partitions(1).build();
+    }
+
+    private Map<String, Object> getProducerConfig(){
         Map<String, Object> config = new HashMap<>();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
         config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
-        return new DefaultKafkaProducerFactory<>(config);
+        return config;
+    }
+
+    @Bean
+    public ProducerFactory<String, ProcessPaymentEvent> producerFactoryForProcessPayment(){
+        return new DefaultKafkaProducerFactory<>(getProducerConfig());
     }
 
     @Bean
     public KafkaTemplate<String, ProcessPaymentEvent> kafkaTemplateForProcessPayment(
             ProducerFactory<String, ProcessPaymentEvent> producerFactory
+    ){
+        return new KafkaTemplate<>(producerFactory);
+    }
+
+    @Bean
+    public ProducerFactory<String, RefundEvent> producerFactoryForRefund(){
+        return new DefaultKafkaProducerFactory<>(getProducerConfig());
+    }
+
+    @Bean
+    public KafkaTemplate<String, RefundEvent> kafkaTemplateForRefund(
+            ProducerFactory<String, RefundEvent> producerFactory
     ){
         return new KafkaTemplate<>(producerFactory);
     }
