@@ -7,14 +7,17 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UsersResource;
-import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.web.client.RestClient;
 
 import java.util.Collections;
+
 
 @Service
 public class AuthService {
@@ -23,6 +26,7 @@ public class AuthService {
     private final String serverUrl;
     private final String realmName;
     private final String userRole;
+    private final RestClient restClient;
 
     public AuthService(
             @Value("${client-id}") String clientId,
@@ -36,24 +40,40 @@ public class AuthService {
         this.serverUrl = serverUrl;
         this.realmName = realmName;
         this.userRole = userRole;
+        this.restClient = RestClient.builder().build();
     }
 
-    public AccessTokenResponse authenticateUser(String login, String password){
-        try (Keycloak userClient = KeycloakBuilder.builder()
-                .serverUrl(serverUrl)
-                .realm(realmName)
-                .clientId(clientId)
-                .clientSecret(clientSecret)
-                .grantType(OAuth2Constants.PASSWORD)
-                .username(login)
-                .password(password)
-                .build()
-        ) {
-            return userClient.tokenManager().getAccessToken();
+    public String authenticateUser(String login, String password){
+        String tokenUrl = serverUrl + "/realms/" + realmName + "/protocol/openid-connect/token";
+        var data = new LinkedMultiValueMap<String, String>();
+        data.add("grant_type", "password");
+        data.add("client_id", clientId);
+        data.add("client_secret", clientSecret);
+        data.add("username", login);
+        data.add("password", password);
 
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
-        }
+        return restClient.post()
+                .uri(tokenUrl)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(data)
+                .retrieve()
+                .body(String.class);
+    }
+
+    public String refreshToken(String refreshToken) {
+        String tokenUrl = serverUrl + "/realms/" + realmName + "/protocol/openid-connect/token";
+        var data = new LinkedMultiValueMap<String, String>();
+        data.add("grant_type", "refresh_token");
+        data.add("client_id", clientId);
+        data.add("client_secret", clientSecret);
+        data.add("refresh_token", refreshToken);
+
+        return restClient.post()
+                .uri(tokenUrl)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(data)
+                .retrieve()
+                .body(String.class);
     }
 
     public String registerUser(RegistrationDTO dto){
