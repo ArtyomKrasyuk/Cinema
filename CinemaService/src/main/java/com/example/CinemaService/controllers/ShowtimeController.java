@@ -1,9 +1,6 @@
 package com.example.CinemaService.controllers;
 
-import com.example.CinemaService.dto.ShowtimeRequestDTO;
-import com.example.CinemaService.dto.ShowtimeResponseDTO;
-import com.example.CinemaService.dto.ShowtimeWithMinPriceResponseDTO;
-import com.example.CinemaService.dto.ShowtimeWithMovieResponseDTO;
+import com.example.CinemaService.dto.*;
 import com.example.CinemaService.services.ShowtimeService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +49,11 @@ public class ShowtimeController {
 
     @GetMapping("/price/{movieId}")
     public List<ShowtimeWithMinPriceResponseDTO> findShowtimesWithMinPriceByMovie(@PathVariable long movieId){
-        return showtimeService.findShowtimesWithMinPrice();
+        return showtimeService.findShowtimesWithMinPriceByMovie(movieId);
+    }
+
+    @GetMapping("/hall/{showtimeId}")
+    public ShowtimeWithHallResponseDTO getHall(@PathVariable long showtimeId){
+        return showtimeService.getShowtimeWithHall(showtimeId);
     }
 }

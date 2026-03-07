@@ -1,9 +1,6 @@
 package com.example.CinemaService.mappers;
 
-import com.example.CinemaService.dto.HallRequestDTO;
-import com.example.CinemaService.dto.HallResponseDTO;
-import com.example.CinemaService.dto.HallWithoutSeatsResponseDTO;
-import com.example.CinemaService.dto.SeatResponseDTO;
+import com.example.CinemaService.dto.*;
 import com.example.CinemaService.models.Cinema;
 import com.example.CinemaService.models.Hall;
 import com.example.CinemaService.models.HallType;
@@ -34,6 +31,13 @@ public abstract class HallMapper {
     @Mapping(target = "hallType", expression = "java(hall.getHallType().getTitle())")
     public abstract HallResponseDTO toDto(Hall hall);
 
+    @Mapping(target = "hallId", expression = "java(hall.getHallId())")
+    @Mapping(target = "number", expression = "java(hall.getNumber())")
+    @Mapping(target = "hallTypeFactor", expression = "java(hall.getHallType().getFactor())")
+    @Mapping(target = "hallType", expression = "java(hall.getHallType().getTitle())")
+    @Mapping(target = "seats", source = "hall", qualifiedByName = "setSeatsWithFactor")
+    public abstract HallWithFactorResponseDTO toDtoWithFactor(Hall hall);
+
     @Mapping(target = "cinemaId", expression = "java(hall.getCinema().getCinemaId())")
     @Mapping(target = "hallType", expression = "java(hall.getHallType().getTitle())")
     public abstract HallWithoutSeatsResponseDTO toDtoWithoutSeats(Hall hall);
@@ -60,6 +64,11 @@ public abstract class HallMapper {
     @Named("setSeats")
     public Set<SeatResponseDTO> setSeats(Set<Seat> seats){
         return seats.stream().map(seatMapper::toDto).collect(Collectors.toSet());
+    }
+
+    @Named("setSeatsWithFactor")
+    public Set<SeatWithFactorResponseDTO> setSeatsWithFactor(Hall hall){
+        return hall.getSeats().stream().map(seatMapper::toDtoWithFactor).collect(Collectors.toSet());
     }
 
     @Named("setHallType")

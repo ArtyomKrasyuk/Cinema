@@ -1,9 +1,7 @@
 package com.example.CinemaService.services;
 
-import com.example.CinemaService.dto.ShowtimeRequestDTO;
-import com.example.CinemaService.dto.ShowtimeResponseDTO;
-import com.example.CinemaService.dto.ShowtimeWithMinPriceResponseDTO;
-import com.example.CinemaService.dto.ShowtimeWithMovieResponseDTO;
+import com.example.CinemaService.dto.*;
+import com.example.CinemaService.mappers.HallMapper;
 import com.example.CinemaService.mappers.ShowtimeMapper;
 import com.example.CinemaService.models.Showtime;
 import com.example.CinemaService.repos.ShowtimeRepository;
@@ -56,6 +54,13 @@ public class ShowtimeService {
     public List<ShowtimeWithMinPriceResponseDTO> findShowtimesWithMinPriceByMovie(long movieId){
         return showtimeRepository.findAllUpcomingShowtimesByMovie(movieId)
                 .stream().map(showtimeMapper::toDtoWithMinPrice).toList();
+    }
+
+    public ShowtimeWithHallResponseDTO getShowtimeWithHall(long showtimeId){
+        Showtime showtime = showtimeRepository.findById(showtimeId).orElseThrow(
+                () -> new RuntimeException("Не найден киносеанс с id " + showtimeId)
+        );
+        return showtimeMapper.toDtoWithHall(showtime);
     }
 
     private boolean isTimeInvalid(Showtime showtime, boolean update){

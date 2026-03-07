@@ -8,6 +8,7 @@ import com.example.OrderService.events.RefundEvent;
 import com.example.OrderService.mappers.OrderMapper;
 import com.example.OrderService.mappers.OrderSeatMapper;
 import com.example.OrderService.models.Order;
+import com.example.OrderService.models.OrderSeat;
 import com.example.OrderService.models.OrderState;
 import com.example.OrderService.repos.OrderRepository;
 import com.example.OrderService.repos.OrderSeatRepository;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
@@ -89,6 +91,18 @@ public class OrderService {
         int updated = orderRepository.moveToCanceled(dto.orderId());
         if(updated == 0) throw new RuntimeException("Заказ нельзя отменить");
         orderSeatRepository.moveSeatsToState(dto.orderId(), OrderState.CANCELED.toString());
-        kafkaTemplateForRefund.send(refundTopic, new RefundEvent(dto.orderId()));
+        //kafkaTemplateForRefund.send(refundTopic, new RefundEvent(dto.orderId()));
+    }
+
+    public ReservedSeatsResponseDTO getReservedSeats(long showtimeId){
+        var list = new ArrayList<Long>();
+        for(OrderSeat seat: orderSeatRepository.findAllByShowtimeId(showtimeId)){
+            if(
+                    seat.getState().equals(OrderState.CREATED) ||
+                    seat.getState().equals(OrderState.PROCESSING) ||
+                    seat.getState().equals(OrderState.CONFIRMED)
+            ) list.add(seat.getOrderSeatId());
+        }
+        return new ReservedSeatsResponseDTO(list);
     }
 }

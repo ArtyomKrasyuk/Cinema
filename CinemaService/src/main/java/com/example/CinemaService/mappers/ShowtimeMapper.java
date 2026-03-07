@@ -25,6 +25,8 @@ public abstract class ShowtimeMapper {
     protected CinemaMapper cinemaMapper;
     @Autowired
     protected MovieMapper movieMapper;
+    @Autowired
+    protected HallMapper hallMapper;
 
     @Mapping(target = "cinema", source = "hall", qualifiedByName = "setCinema")
     @Mapping(target = "hallId", expression = "java(showtime.getHall().getHallId())")
@@ -54,6 +56,13 @@ public abstract class ShowtimeMapper {
     @Mapping(target = "time", expression = "java(showtime.getTime().toString())")
     @Mapping(target = "minPrice", source = ".", qualifiedByName = "setMinPrice")
     public abstract ShowtimeWithMinPriceResponseDTO toDtoWithMinPrice(Showtime showtime);
+
+    @Mapping(target = "hall", source = "hall", qualifiedByName = "setHallWithFactor")
+    @Mapping(target = "movieTitle", expression = "java(showtime.getMovie().getTitle())")
+    @Mapping(target = "cinemaTitle", expression = "java(showtime.getHall().getCinema().getTitle())")
+    @Mapping(target = "cinemaAddress", expression = "java(showtime.getHall().getCinema().getAddress())")
+    @Mapping(target = "time", expression = "java(showtime.getTime().toString())")
+    public abstract ShowtimeWithHallResponseDTO toDtoWithHall(Showtime showtime);
 
     @Named("setCinema")
     public CinemaResponseDTO setCinema(Hall hall){
@@ -90,5 +99,10 @@ public abstract class ShowtimeMapper {
             if(price * seat.getSeatType().getFactor() < minPrice) minPrice = price * seat.getSeatType().getFactor();
         }
         return (int)Math.floor(minPrice);
+    }
+
+    @Named("setHallWithFactor")
+    public HallWithFactorResponseDTO setHallWithFactor(Hall hall){
+        return hallMapper.toDtoWithFactor(hall);
     }
 }

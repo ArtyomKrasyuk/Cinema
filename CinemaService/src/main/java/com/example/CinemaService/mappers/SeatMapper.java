@@ -2,6 +2,7 @@ package com.example.CinemaService.mappers;
 
 import com.example.CinemaService.dto.SeatRequestDTO;
 import com.example.CinemaService.dto.SeatResponseDTO;
+import com.example.CinemaService.dto.SeatWithFactorResponseDTO;
 import com.example.CinemaService.models.Hall;
 import com.example.CinemaService.models.Seat;
 import com.example.CinemaService.models.SeatType;
@@ -22,6 +23,10 @@ public abstract class SeatMapper {
 
     @Mapping(target = "type", expression = "java(seat.getSeatType().getTitle())")
     public abstract SeatResponseDTO toDto(Seat seat);
+
+    @Mapping(target = "type", expression = "java(seat.getSeatType().getTitle())")
+    @Mapping(target = "factor", expression = "java(seat.getSeatType().getFactor())")
+    public abstract SeatWithFactorResponseDTO toDtoWithFactor(Seat seat);
 
     @Mapping(target = "seatId", ignore = true)
     @Mapping(target = "hall", source = "hall")

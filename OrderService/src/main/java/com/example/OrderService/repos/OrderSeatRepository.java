@@ -37,4 +37,6 @@ public interface OrderSeatRepository extends JpaRepository<OrderSeat, Long> {
       AND os.state = 'CREATED'
 """)
     int expireSeats(@Param("orderIds") List<Long> orderIds);
+
+    List<OrderSeat> findAllByShowtimeId(Long showtimeId);
 }
