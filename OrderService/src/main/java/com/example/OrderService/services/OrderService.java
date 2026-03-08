@@ -22,6 +22,8 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -38,8 +40,9 @@ public class OrderService {
     private final KafkaTemplate<String, ProcessPaymentEvent> kafkaTemplateForProcessPayment;
     private final KafkaTemplate<String, RefundEvent> kafkaTemplateForRefund;
 
-    public OrderCreatedDTO save(OrderRequestDTO dto){
+    public OrderCreatedDTO save(OrderRequestDTO dto, UUID clientId){
         Order order = orderMapper.toEntity(dto);
+        order.setClientId(clientId);
         Instant expires = Instant.now().plus(Duration.ofMinutes(15));
         order.setExpiresAt(Timestamp.from(expires));
         Order entity = orderRepository.save(order);
@@ -87,11 +90,11 @@ public class OrderService {
         return new OrderStatusResponseDTO(order.getState().toString());
     }
 
-    public void refund(RefundRequestDTO dto){
-        int updated = orderRepository.moveToCanceled(dto.orderId());
+    public void refund(long orderId){
+        int updated = orderRepository.moveToCanceled(orderId);
         if(updated == 0) throw new RuntimeException("Заказ нельзя отменить");
-        orderSeatRepository.moveSeatsToState(dto.orderId(), OrderState.CANCELED.toString());
-        //kafkaTemplateForRefund.send(refundTopic, new RefundEvent(dto.orderId()));
+        orderSeatRepository.moveSeatsToState(orderId, OrderState.CANCELED.toString());
+        //kafkaTemplateForRefund.send(refundTopic, new RefundEvent(orderId));
     }
 
     public ReservedSeatsResponseDTO getReservedSeats(long showtimeId){
@@ -104,5 +107,9 @@ public class OrderService {
             ) list.add(seat.getOrderSeatId());
         }
         return new ReservedSeatsResponseDTO(list);
+    }
+
+    public List<OrderResponseDTO> getOrders(UUID clientId){
+        return orderRepository.findAllByClientId(clientId).stream().map(orderMapper::toDto).toList();
     }
 }

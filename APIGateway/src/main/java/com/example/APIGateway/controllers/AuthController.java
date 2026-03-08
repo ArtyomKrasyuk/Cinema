@@ -6,7 +6,9 @@ import com.example.APIGateway.dto.RegistrationDTO;
 import com.example.APIGateway.service.AuthService;
 import org.keycloak.representations.AccessTokenResponse;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @RestController
 public class AuthController {
@@ -28,17 +30,19 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@RequestBody RefreshToken refreshToken){
-        return ResponseEntity.ok(authService.refreshToken(refreshToken.token()));
+    public String refresh(@RequestBody RefreshToken refreshToken){
+        return authService.refreshToken(refreshToken.token());
     }
 
-    @GetMapping("/api/test/admin")
-    public ResponseEntity<?> testAdmin(){
-        return ResponseEntity.ok().build();
+    @GetMapping("/test/admin")
+    @PreAuthorize("hasRole('admin')")
+    public Mono<?> testAdmin(){
+        return Mono.empty();
     }
 
-    @GetMapping("/api/test/client")
-    public ResponseEntity<?> testClient(){
-        return ResponseEntity.ok().build();
+    @GetMapping("/test/client")
+    @PreAuthorize("hasRole('client')")
+    public Mono<?> testClient(){
+        return Mono.empty();
     }
 }

@@ -15,6 +15,7 @@ public abstract class OrderSeatMapper {
     @Mapping(target = "seatId", source = "dto.seatId")
     @Mapping(target = "showtimeId", source = "dto.showtimeId")
     @Mapping(target = "seatNumber", source = "dto.seatNumber")
+    @Mapping(target = "seatRow", source = "dto.seatRow")
     @Mapping(target = "state", expression = "java(com.example.OrderService.models.OrderState.CREATED)")
     public abstract OrderSeat toEntity(OrderSeatRequestDTO dto, Order order);
 

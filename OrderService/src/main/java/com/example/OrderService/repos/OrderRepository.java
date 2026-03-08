@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
@@ -48,4 +49,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
           AND o.time > CURRENT_TIMESTAMP
     """)
     int moveToCanceled(@Param("id") Long id);
+
+    List<Order> findAllByClientId(UUID clientId);
 }

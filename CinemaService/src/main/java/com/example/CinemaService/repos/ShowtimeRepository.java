@@ -29,6 +29,6 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Long> {
             @Param("hallId") Long hallId
     );
 
-    @Query("SELECT s FROM Showtime s WHERE s.time > CURRENT_TIMESTAMP AND s.movie.movieId = :movie")
+    @Query("SELECT s FROM Showtime s WHERE s.time > CURRENT_TIMESTAMP AND s.movie.movieId = :movieId")
     List<Showtime> findAllUpcomingShowtimesByMovie(long movieId);
 }

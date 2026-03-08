@@ -19,6 +19,8 @@ public class OrderSeat {
     private Long showtimeId;
     @Column(name = "seat_number")
     private Integer seatNumber;
+    @Column(name = "seat_row")
+    private Integer seatRow;
     @Enumerated(EnumType.STRING)
     private OrderState state;
 
