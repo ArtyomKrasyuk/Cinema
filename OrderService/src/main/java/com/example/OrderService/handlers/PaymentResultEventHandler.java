@@ -12,12 +12,18 @@ import org.springframework.stereotype.Component;
 public class PaymentResultEventHandler {
     private final OrderService orderService;
 
-    @KafkaListener(topics = "${app.kafka.payment.succeeded.topic}")
+    @KafkaListener(
+            topics = "${app.kafka.payment.succeeded.topic}",
+            containerFactory = "containerFactoryForPaymentSucceeded"
+    )
     public void handleSuccess(PaymentSucceededEvent event){
         orderService.handleSuccess(event);
     }
 
-    @KafkaListener(topics = "${app.kafka.payment.failed.topic}")
+    @KafkaListener(
+            topics = "${app.kafka.payment.failed.topic}",
+            containerFactory = "containerFactoryForPaymentFailed"
+    )
     public void handleFail(PaymentFailedEvent event){
         orderService.handleFail(event);
     }

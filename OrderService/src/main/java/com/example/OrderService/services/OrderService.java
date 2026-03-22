@@ -29,9 +29,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Transactional
 public class OrderService {
-    @Value("app.kafka.process.payment.topic")
+    @Value("${app.kafka.process.payment.topic}")
     private String processPaymentTopic;
-    @Value("app.kafka.refund.event.topic")
+    @Value("${app.kafka.refund.event.topic}")
     private String refundTopic;
     private final OrderMapper orderMapper;
     private final OrderRepository orderRepository;
@@ -43,7 +43,7 @@ public class OrderService {
     public OrderCreatedDTO save(OrderRequestDTO dto, UUID clientId){
         Order order = orderMapper.toEntity(dto);
         order.setClientId(clientId);
-        Instant expires = Instant.now().plus(Duration.ofMinutes(15));
+        Instant expires = Instant.now().plus(Duration.ofMinutes(5));
         order.setExpiresAt(Timestamp.from(expires));
         Order entity = orderRepository.save(order);
         orderSeatRepository.saveAll(
@@ -55,7 +55,7 @@ public class OrderService {
     public void pay(PaymentRequestDTO dto){
         int updated = orderRepository.moveToProcessing(dto.orderId());
         if(updated == 0) throw new RuntimeException("Истекло время оплаты заказа");
-        orderSeatRepository.moveSeatsToState(dto.orderId(), OrderState.PROCESSING.toString());
+        orderSeatRepository.moveSeatsToState(dto.orderId(), OrderState.PROCESSING);
         Order order = orderRepository.findById(dto.orderId()).orElseThrow(
                 () -> new RuntimeException("Не найден заказ с id: " + dto.orderId()));
         var event = new ProcessPaymentEvent(
@@ -73,7 +73,7 @@ public class OrderService {
                 () -> new RuntimeException("Не найден заказ с id: " + event.orderId()));
         order.setState(OrderState.CONFIRMED);
         orderRepository.save(order);
-        orderSeatRepository.moveSeatsToState(event.orderId(), OrderState.CONFIRMED.toString());
+        orderSeatRepository.moveSeatsToState(event.orderId(), OrderState.CONFIRMED);
     }
 
     public void handleFail(PaymentFailedEvent event){
@@ -81,7 +81,7 @@ public class OrderService {
                 () -> new RuntimeException("Не найден заказ с id: " + event.orderId()));
         order.setState(OrderState.PAYMENT_FAILED);
         orderRepository.save(order);
-        orderSeatRepository.moveSeatsToState(event.orderId(), OrderState.PAYMENT_FAILED.toString());
+        orderSeatRepository.moveSeatsToState(event.orderId(), OrderState.PAYMENT_FAILED);
     }
 
     public OrderStatusResponseDTO getStatus(long orderId){
@@ -93,7 +93,7 @@ public class OrderService {
     public void refund(long orderId){
         int updated = orderRepository.moveToCanceled(orderId);
         if(updated == 0) throw new RuntimeException("Заказ нельзя отменить");
-        orderSeatRepository.moveSeatsToState(orderId, OrderState.CANCELED.toString());
+        orderSeatRepository.moveSeatsToState(orderId, OrderState.CANCELED);
         //kafkaTemplateForRefund.send(refundTopic, new RefundEvent(orderId));
     }
 
@@ -104,12 +104,14 @@ public class OrderService {
                     seat.getState().equals(OrderState.CREATED) ||
                     seat.getState().equals(OrderState.PROCESSING) ||
                     seat.getState().equals(OrderState.CONFIRMED)
-            ) list.add(seat.getOrderSeatId());
+            ) list.add(seat.getSeatId());
         }
         return new ReservedSeatsResponseDTO(list);
     }
 
     public List<OrderResponseDTO> getOrders(UUID clientId){
-        return orderRepository.findAllByClientId(clientId).stream().map(orderMapper::toDto).toList();
+        return orderRepository.findAllByClientId(clientId).stream()
+                .filter(order -> order.getState().equals(OrderState.CONFIRMED))
+                .map(orderMapper::toDto).toList();
     }
 }

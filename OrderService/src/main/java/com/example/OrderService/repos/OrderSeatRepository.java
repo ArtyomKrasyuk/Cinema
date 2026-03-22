@@ -27,7 +27,7 @@ public interface OrderSeatRepository extends JpaRepository<OrderSeat, Long> {
     SET os.state = :state
     WHERE os.order.orderId = :orderId
 """)
-    int moveSeatsToState(@Param("orderId") Long orderId, String state);
+    int moveSeatsToState(@Param("orderId") Long orderId, OrderState state);
 
     @Modifying
     @Query("""

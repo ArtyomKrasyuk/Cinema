@@ -12,14 +12,17 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class ProcessPaymentEventHandler {
-    @Value("app.kafka.payment.succeeded.topic")
+    @Value("${app.kafka.payment.succeeded.topic}")
     private String paymentSucceededTopic;
-    @Value("app.kafka.payment.failed.topic")
+    @Value("${app.kafka.payment.failed.topic}")
     private String paymentFailedTopic;
     private final KafkaTemplate<String, PaymentSucceededEvent> kafkaTemplateForSucceededPayment;
     private final KafkaTemplate<String, PaymentFailedEvent> kafkaTemplateForFailedPayment;
 
-    @KafkaListener(topics = "${app.kafka.process.payment.topic}")
+    @KafkaListener(
+            topics = "${app.kafka.process.payment.topic}",
+            containerFactory = "containerFactoryForProcessPayment"
+    )
     public void handleProcessPaymentEvent(ProcessPaymentEvent event){
         try {
             Thread.sleep(2000);

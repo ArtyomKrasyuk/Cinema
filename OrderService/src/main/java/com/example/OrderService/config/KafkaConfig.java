@@ -1,5 +1,7 @@
 package com.example.OrderService.config;
 
+import com.example.OrderService.events.PaymentFailedEvent;
+import com.example.OrderService.events.PaymentSucceededEvent;
 import com.example.OrderService.events.ProcessPaymentEvent;
 import com.example.OrderService.events.RefundEvent;
 import org.apache.kafka.clients.admin.NewTopic;
@@ -23,19 +25,17 @@ import java.util.Map;
 @Configuration
 public class KafkaConfig {
 
-    @Value("spring.kafka.bootstrap-servers")
+    @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
-    @Value("spring.kafka.consumer.group-id")
+    @Value("${spring.kafka.consumer.group-id}")
     private String consumerGroupId;
-    @Value("spring.kafka.consumer.properties.spring.json.trusted.packages")
-    private String trustedPackages;
-    @Value("app.kafka.process.payment.topic")
+    @Value("${app.kafka.process.payment.topic}")
     private String processPaymentTopic;
-    @Value("app.kafka.payment.succeeded.topic")
+    @Value("${app.kafka.payment.succeeded.topic}")
     private String paymentSucceededTopic;
-    @Value("app.kafka.payment.failed.topic")
+    @Value("${app.kafka.payment.failed.topic}")
     private String paymentFailedTopic;
-    @Value("app.kafka.refund.event.topic")
+    @Value("${app.kafka.refund.event.topic}")
     private String refundTopic;
 
     @Bean
@@ -92,22 +92,55 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, Object> consumerFactory(){
+    public ConsumerFactory<String, PaymentSucceededEvent> consumerFactoryForPaymentSucceeded() {
         Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
-        config.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class);
-        config.put(JsonDeserializer.TRUSTED_PACKAGES, trustedPackages);
         config.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
-        return new DefaultKafkaConsumerFactory<>(config);
+        var jsonDeserializer = new JsonDeserializer<>(PaymentSucceededEvent.class);
+        jsonDeserializer.addTrustedPackages("*");
+        jsonDeserializer.setUseTypeHeaders(false);
+        var errorHandlingDeserializer =
+                new ErrorHandlingDeserializer<>(jsonDeserializer);
+
+        return new DefaultKafkaConsumerFactory<>(
+                config,
+                new StringDeserializer(),
+                errorHandlingDeserializer
+        );
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Object> containerFactory(
-            ConsumerFactory<String, Object> consumerFactory
+    public ConcurrentKafkaListenerContainerFactory<String, PaymentSucceededEvent> containerFactoryForPaymentSucceeded(
+            ConsumerFactory<String, PaymentSucceededEvent> consumerFactory
     ){
-        var factory = new ConcurrentKafkaListenerContainerFactory<String, Object>();
+        var factory = new ConcurrentKafkaListenerContainerFactory<String, PaymentSucceededEvent>();
+        factory.setConsumerFactory(consumerFactory);
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<String, PaymentFailedEvent> consumerFactoryForPaymentFailed() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
+        var jsonDeserializer = new JsonDeserializer<>(PaymentFailedEvent.class);
+        jsonDeserializer.addTrustedPackages("*");
+        jsonDeserializer.setUseTypeHeaders(false);
+        var errorHandlingDeserializer =
+                new ErrorHandlingDeserializer<>(jsonDeserializer);
+
+        return new DefaultKafkaConsumerFactory<>(
+                config,
+                new StringDeserializer(),
+                errorHandlingDeserializer
+        );
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, PaymentFailedEvent> containerFactoryForPaymentFailed(
+            ConsumerFactory<String, PaymentFailedEvent> consumerFactory
+    ){
+        var factory = new ConcurrentKafkaListenerContainerFactory<String, PaymentFailedEvent>();
         factory.setConsumerFactory(consumerFactory);
         return factory;
     }
