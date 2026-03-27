@@ -1,12 +1,11 @@
 package com.example.APIGateway.controllers;
 
-import com.example.APIGateway.dto.AuthDTO;
-import com.example.APIGateway.dto.RefreshToken;
-import com.example.APIGateway.dto.RegistrationDTO;
+import com.example.APIGateway.dto.*;
 import com.example.APIGateway.service.AuthService;
-import org.keycloak.representations.AccessTokenResponse;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -32,6 +31,31 @@ public class AuthController {
     @PostMapping("/refresh")
     public String refresh(@RequestBody RefreshToken refreshToken){
         return authService.refreshToken(refreshToken.token());
+    }
+
+    @PutMapping("/profile")
+    @PreAuthorize("hasRole('client')")
+    public Mono<?> updateUserProfile(
+            @RequestBody UserProfileRequestDTO dto,
+            @AuthenticationPrincipal Jwt jwt
+    ){
+        authService.updateUserProfile(jwt.getSubject(), dto.firstName(), dto.lastName());
+        return Mono.empty();
+    }
+
+    @PutMapping("/password")
+    @PreAuthorize("hasRole('client')")
+    public Mono<?> updatePassword(
+            @RequestBody UserPasswordRequestDTO dto,
+            @AuthenticationPrincipal Jwt jwt
+    ){
+        authService.changePasswordSecurely(
+                jwt.getSubject(),
+                jwt.getClaimAsString("preferred_username"),
+                dto.oldPassword(),
+                dto.newPassword()
+        );
+        return Mono.empty();
     }
 
     @GetMapping("/test/admin")

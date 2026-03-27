@@ -6,6 +6,7 @@ import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
@@ -77,14 +78,7 @@ public class AuthService {
     }
 
     public String registerUser(RegistrationDTO dto){
-        try(Keycloak adminClient = KeycloakBuilder.builder()
-                .serverUrl(serverUrl)
-                .realm(realmName)
-                .clientId(clientId)
-                .clientSecret(clientSecret)
-                .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
-                .build()
-        ){
+        try(Keycloak adminClient = createAdminClient()){
             RealmResource realmResource = adminClient.realm(realmName);
             UsersResource usersResource = realmResource.users();
 
@@ -120,6 +114,43 @@ public class AuthService {
         }
     }
 
+    public void updateUserProfile(String userId, String firstName, String lastName) {
+        try (Keycloak adminClient = createAdminClient()) {
+            UserResource userResource = adminClient.realm(realmName).users().get(userId);
+            UserRepresentation user = userResource.toRepresentation();
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            userResource.update(user);
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка при обновлении профиля пользователя: " + e.getMessage());
+        }
+    }
+
+    public void changePasswordSecurely(String userId, String login, String oldPassword, String newPassword) {
+        try {
+            authenticateUser(login, oldPassword);
+        } catch (Exception e) {
+            throw new RuntimeException("Текущий пароль введен неверно. Смена невозможна.");
+        }
+        updatePassword(userId, newPassword);
+    }
+
+    private void updatePassword(String userId, String newPassword) {
+        try (Keycloak adminClient = createAdminClient()) {
+            CredentialRepresentation newCred = new CredentialRepresentation();
+            newCred.setType(CredentialRepresentation.PASSWORD);
+            newCred.setValue(newPassword);
+            newCred.setTemporary(false);
+
+            adminClient.realm(realmName)
+                    .users()
+                    .get(userId)
+                    .resetPassword(newCred);
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка при смене пароля: " + e.getMessage());
+        }
+    }
+
     private void setInitialPassword(UsersResource usersResource, String userId, String password) {
         CredentialRepresentation passwordCred = new CredentialRepresentation();
         passwordCred.setType(CredentialRepresentation.PASSWORD);
@@ -142,5 +173,15 @@ public class AuthService {
         realmResource.users().get(userId).roles()
                 .realmLevel()
                 .add(Collections.singletonList(realmRole));
+    }
+
+    private Keycloak createAdminClient() {
+        return KeycloakBuilder.builder()
+                .serverUrl(serverUrl)
+                .realm(realmName)
+                .clientId(clientId)
+                .clientSecret(clientSecret)
+                .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
+                .build();
     }
 }
