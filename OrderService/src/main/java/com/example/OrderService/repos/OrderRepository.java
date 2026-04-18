@@ -50,5 +50,25 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     """)
     int moveToCanceled(@Param("id") Long id);
 
+    @Modifying
+    @Transactional
+    @Query("""
+        UPDATE Order o
+        SET o.state = 'REFUNDED'
+        WHERE o.orderId = :id
+          AND o.state = 'CANCELED'
+    """)
+    int moveToRefunded(@Param("id") Long id);
+
+    @Modifying
+    @Transactional
+    @Query("""
+        UPDATE Order o
+        SET o.state = 'CONFIRMED'
+        WHERE o.orderId = :id
+          AND o.state = 'CANCELED'
+    """)
+    int moveToConfirmed(@Param("id") Long id);
+
     List<Order> findAllByClientId(UUID clientId);
 }

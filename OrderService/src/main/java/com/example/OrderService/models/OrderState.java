@@ -6,5 +6,6 @@ public enum OrderState {
     CONFIRMED,
     CANCELED,
     EXPIRED,
-    PAYMENT_FAILED
+    PAYMENT_FAILED,
+    REFUNDED
 }

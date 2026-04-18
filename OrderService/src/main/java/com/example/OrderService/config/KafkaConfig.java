@@ -1,9 +1,6 @@
 package com.example.OrderService.config;
 
-import com.example.OrderService.events.PaymentFailedEvent;
-import com.example.OrderService.events.PaymentSucceededEvent;
-import com.example.OrderService.events.ProcessPaymentEvent;
-import com.example.OrderService.events.RefundEvent;
+import com.example.OrderService.events.*;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -141,6 +138,60 @@ public class KafkaConfig {
             ConsumerFactory<String, PaymentFailedEvent> consumerFactory
     ){
         var factory = new ConcurrentKafkaListenerContainerFactory<String, PaymentFailedEvent>();
+        factory.setConsumerFactory(consumerFactory);
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<String, RefundSucceededEvent> consumerFactoryForRefundSucceeded() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
+        var jsonDeserializer = new JsonDeserializer<>(RefundSucceededEvent.class);
+        jsonDeserializer.addTrustedPackages("*");
+        jsonDeserializer.setUseTypeHeaders(false);
+        var errorHandlingDeserializer =
+                new ErrorHandlingDeserializer<>(jsonDeserializer);
+
+        return new DefaultKafkaConsumerFactory<>(
+                config,
+                new StringDeserializer(),
+                errorHandlingDeserializer
+        );
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, RefundSucceededEvent> containerFactoryForRefundSucceeded(
+            ConsumerFactory<String, RefundSucceededEvent> consumerFactory
+    ){
+        var factory = new ConcurrentKafkaListenerContainerFactory<String, RefundSucceededEvent>();
+        factory.setConsumerFactory(consumerFactory);
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<String, RefundFailedEvent> consumerFactoryForRefundFailed() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
+        var jsonDeserializer = new JsonDeserializer<>(RefundFailedEvent.class);
+        jsonDeserializer.addTrustedPackages("*");
+        jsonDeserializer.setUseTypeHeaders(false);
+        var errorHandlingDeserializer =
+                new ErrorHandlingDeserializer<>(jsonDeserializer);
+
+        return new DefaultKafkaConsumerFactory<>(
+                config,
+                new StringDeserializer(),
+                errorHandlingDeserializer
+        );
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, RefundFailedEvent> containerFactoryForRefundFailed(
+            ConsumerFactory<String, RefundFailedEvent> consumerFactory
+    ){
+        var factory = new ConcurrentKafkaListenerContainerFactory<String, RefundFailedEvent>();
         factory.setConsumerFactory(consumerFactory);
         return factory;
     }

@@ -1,10 +1,7 @@
 package com.example.OrderService.services;
 
 import com.example.OrderService.dto.*;
-import com.example.OrderService.events.PaymentFailedEvent;
-import com.example.OrderService.events.PaymentSucceededEvent;
-import com.example.OrderService.events.ProcessPaymentEvent;
-import com.example.OrderService.events.RefundEvent;
+import com.example.OrderService.events.*;
 import com.example.OrderService.mappers.OrderMapper;
 import com.example.OrderService.mappers.OrderSeatMapper;
 import com.example.OrderService.models.Order;
@@ -84,6 +81,16 @@ public class OrderService {
         orderSeatRepository.moveSeatsToState(event.orderId(), OrderState.PAYMENT_FAILED);
     }
 
+    public void handleRefundSuccess(RefundSucceededEvent event){
+        orderRepository.moveToRefunded(event.orderId());
+        orderSeatRepository.moveSeatsToState(event.orderId(), OrderState.REFUNDED);
+    }
+
+    public void handleRefundFail(RefundFailedEvent event){
+        orderRepository.moveToConfirmed(event.orderId());
+        orderSeatRepository.moveSeatsToState(event.orderId(), OrderState.CONFIRMED);
+    }
+
     public OrderStatusResponseDTO getStatus(long orderId){
         Order order = orderRepository.findById(orderId).orElseThrow(
                 () -> new RuntimeException("Не найден заказ с id: " + orderId));
@@ -94,7 +101,7 @@ public class OrderService {
         int updated = orderRepository.moveToCanceled(orderId);
         if(updated == 0) throw new RuntimeException("Заказ нельзя отменить");
         orderSeatRepository.moveSeatsToState(orderId, OrderState.CANCELED);
-        //kafkaTemplateForRefund.send(refundTopic, new RefundEvent(orderId));
+        kafkaTemplateForRefund.send(refundTopic, new RefundEvent(orderId));
     }
 
     public ReservedSeatsResponseDTO getReservedSeats(long showtimeId){
