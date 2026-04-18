@@ -25,6 +25,11 @@ public class MovieController {
         return movieService.findById(movieId);
     }
 
+    @GetMapping("/suggestions")
+    public List<String> getSuggestions(@RequestParam String query) {
+        return movieService.getMovieSuggestions(query);
+    }
+
     @PostMapping
     public ResponseEntity<?> save(@RequestBody MovieRequestDTO dto){
         movieService.save(dto);

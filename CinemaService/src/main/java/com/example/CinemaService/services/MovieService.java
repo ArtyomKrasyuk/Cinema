@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -39,5 +40,12 @@ public class MovieService {
 
     public void deleteById(long movieId){
         movieRepository.deleteById(movieId);
+    }
+
+    public List<String> getMovieSuggestions(String query) {
+        if (query == null || query.trim().length() < 2) {
+            return Collections.emptyList();
+        }
+        return movieRepository.findTitlesBySubstring(query);
     }
 }
