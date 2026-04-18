@@ -118,7 +118,8 @@ public class OrderService {
 
     public List<OrderResponseDTO> getOrders(UUID clientId){
         return orderRepository.findAllByClientId(clientId).stream()
-                .filter(order -> order.getState().equals(OrderState.CONFIRMED))
+                .filter(order -> order.getState().equals(OrderState.CONFIRMED)
+                        || order.getState().equals(OrderState.REFUNDED))
                 .map(orderMapper::toDto).toList();
     }
 }
