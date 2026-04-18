@@ -34,6 +34,10 @@ public class KafkaConfig {
     private String paymentFailedTopic;
     @Value("${app.kafka.refund.event.topic}")
     private String refundTopic;
+    @Value("${app.kafka.refund.succeeded.topic}")
+    private String refundSucceededTopic;
+    @Value("${app.kafka.refund.failed.topic}")
+    private String refundFailedTopic;
 
     @Bean
     public NewTopic createProcessPaymentTopic(){
@@ -53,6 +57,16 @@ public class KafkaConfig {
     @Bean
     public NewTopic createRefundEventTopic(){
         return TopicBuilder.name(refundTopic).partitions(1).build();
+    }
+
+    @Bean
+    public NewTopic createRefundSucceededTopic(){
+        return TopicBuilder.name(refundSucceededTopic).partitions(1).build();
+    }
+
+    @Bean
+    public NewTopic createRefundFailedTopic(){
+        return TopicBuilder.name(refundFailedTopic).partitions(1).build();
     }
 
     private Map<String, Object> getProducerConfig(){

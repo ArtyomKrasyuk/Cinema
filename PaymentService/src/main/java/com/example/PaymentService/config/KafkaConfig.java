@@ -45,6 +45,16 @@ public class KafkaConfig {
     }
 
     @Bean
+    public ProducerFactory<String, RefundSucceededEvent> producerFactoryForSucceededRefund(){
+        return new DefaultKafkaProducerFactory<>(getProducerConfig());
+    }
+
+    @Bean
+    public ProducerFactory<String, RefundFailedEvent> producerFactoryForFailedRefund(){
+        return new DefaultKafkaProducerFactory<>(getProducerConfig());
+    }
+
+    @Bean
     public KafkaTemplate<String, PaymentSucceededEvent> kafkaTemplateForSucceededPayment(
             ProducerFactory<String, PaymentSucceededEvent> producerFactory
     ){
